@@ -23,10 +23,11 @@ export class SecurityAIService {
         contents: prompt,
         config: {
           systemInstruction: `${this.AEGIS_IDENTITY} Analyze security requests with deep logical rigor.`,
+          maxOutputTokens: 4096,
           thinkingConfig: { thinkingBudget: 8000 }
         },
       });
-      return response.text || "Neural link stable.";
+      return response.text || "Neural link stable. Logic synthesis complete.";
     } catch (error) {
       console.error("Deep analysis failed:", error);
       throw error;
@@ -57,9 +58,10 @@ export class SecurityAIService {
           systemInstruction: `${this.AEGIS_IDENTITY} Rapid triage module.`
         },
       });
-      return JSON.parse(response.text || "{}");
+      const text = response.text || "{}";
+      return JSON.parse(text);
     } catch (error) {
-      return { threatLevel: ThreatLevel.LOW, confidenceScore: 0, recommendedAction: "Check Logs", explanation: "Error" };
+      return { threatLevel: ThreatLevel.LOW, confidenceScore: 0, recommendedAction: "Check Logs", explanation: "Triage engine failure." };
     }
   }
 
@@ -72,7 +74,7 @@ export class SecurityAIService {
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: {
-          parts: [{ inlineData: { mimeType: 'image/jpeg', data: base64Image } }, { text: "Intruder check. Return JSON." }]
+          parts: [{ inlineData: { mimeType: 'image/jpeg', data: base64Image } }, { text: "Perform a security assessment of this frame. Identify intruders or threats. Return JSON format." }]
         },
         config: {
           responseMimeType: "application/json",
@@ -88,8 +90,10 @@ export class SecurityAIService {
           }
         }
       });
-      return JSON.parse(response.text || "{}");
+      const text = response.text || "{}";
+      return JSON.parse(text);
     } catch (error) {
+      console.error("Vision AI failed:", error);
       throw error;
     }
   }
@@ -103,7 +107,7 @@ export class SecurityAIService {
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
-          parts: [{ text: "Create a highly detailed, futuristic holographic security clearance ID card for 'Wally Nthani'. It should feature CipherX Inc branding, neon cyan accents, a fingerprint motif, and the title 'FOUNDER & ARCHITECT'. The background should be a dark, cyber-grid texture. 4K resolution." }]
+          parts: [{ text: "Create a highly detailed, futuristic holographic security clearance ID card for 'Wally Nthani'. It should feature CipherX Inc branding, neon cyan accents, a fingerprint motif, and the title 'FOUNDER & ARCHITECT'. The background should be a dark, cyber-grid texture. 4K quality." }]
         },
         config: {
           imageConfig: { aspectRatio: "3:4" }
@@ -159,7 +163,8 @@ export class SecurityAIService {
           }
         }
       });
-      return JSON.parse(response.text || "{}");
+      const text = response.text || "{}";
+      return JSON.parse(text);
     } catch (error) {
       throw error;
     }
@@ -172,19 +177,24 @@ export class SecurityAIService {
     const ai = this.getAI();
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: `As AegisAI, assess the physical security profile of the area around these coordinates: ${lat}, ${lng}. Are there any critical infrastructure points, data centers, or known high-security zones nearby? Provide a concise summary for a founder.`,
+        model: "gemini-2.5-flash",
+        contents: `As AegisAI, assess the physical security profile of the area around these coordinates: ${lat}, ${lng}. Are there any critical infrastructure points, data centers, or known high-security zones nearby? Provide a concise summary.`,
         config: {
           tools: [{ googleMaps: {} }],
           toolConfig: {
-            retrievalConfig: { latLng: { latitude: lat, longitude: lng } }
+            retrievalConfig: {
+              latLng: {
+                latitude: lat,
+                longitude: lng
+              }
+            }
           }
         }
       });
       return response.text || "Regional scans complete. No immediate geospatial anomalies.";
     } catch (error) {
       console.error("Maps grounding failed:", error);
-      return "Unable to resolve local threat surface via geospatial tools.";
+      return "Geospatial resolution suspended. Regional scanning offline.";
     }
   }
 }

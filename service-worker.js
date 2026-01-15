@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'aegis-core-v3.2.0';
+const CACHE_NAME = 'aegis-core-v4.1.0';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -11,7 +11,7 @@ const STATIC_ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch(err => console.warn('PWA Pre-cache partial failure:', err));
+      return cache.addAll(STATIC_ASSETS).catch(err => console.warn('Pre-cache warning:', err));
     })
   );
   self.skipWaiting();
@@ -29,13 +29,20 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Bypass SW for internal .ts/.tsx files to ensure the latest code always runs
-  // and prevent content-type mismatches during development.
-  if (event.request.url.match(/\.(ts|tsx)$/)) {
+  const url = new URL(event.request.url);
+
+  // 1. COMPLETELY IGNORE GOOGLE API CALLS
+  // This is critical to prevent the Service Worker from breaking AI requests
+  if (url.hostname.includes('googleapis.com')) {
     return;
   }
 
-  // 1. Handle Navigation Requests (SPA support)
+  // 2. Bypass SW for internal .ts/.tsx files to ensure the latest code always runs
+  if (url.pathname.match(/\.(ts|tsx)$/)) {
+    return;
+  }
+
+  // 3. Handle Navigation Requests (SPA support)
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(() => caches.match('/index.html') || caches.match('/'))
@@ -43,12 +50,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Cache-First for external stable CDNs
+  // 4. Cache-First for external stable CDNs
   if (
-    event.request.url.includes('cdn.tailwindcss.com') ||
-    event.request.url.includes('cdnjs.cloudflare.com') ||
-    event.request.url.includes('fonts.googleapis.com') ||
-    event.request.url.includes('fonts.gstatic.com')
+    url.hostname.includes('cdn.tailwindcss.com') ||
+    url.hostname.includes('cdnjs.cloudflare.com') ||
+    url.hostname.includes('fonts.googleapis.com') ||
+    url.hostname.includes('fonts.gstatic.com')
   ) {
     event.respondWith(
       caches.match(event.request).then((response) => {
@@ -64,7 +71,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Network-First for everything else
+  // 5. Network-First for everything else
   event.respondWith(
     fetch(event.request).catch(() => caches.match(event.request))
   );
