@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Button } from '../components/Button';
-import { localVault } from '../lib/database';
+import { Button } from '../components/Button.tsx';
+import { localVault } from '../lib/database.ts';
 
 interface SentinelProps {
   onIntruderDetected?: () => void;
@@ -35,7 +35,6 @@ const Sentinel: React.FC<SentinelProps> = ({ onIntruderDetected }) => {
     setLogs(prev => [{ id: Date.now(), time: new Date().toLocaleTimeString(), msg, type }, ...prev].slice(0, 10));
   };
 
-  // Correctly load alert history asynchronously
   const loadAlertHistory = async () => {
     try {
       const entries = await localVault.getEntries('INTRUSION');
@@ -105,7 +104,6 @@ const Sentinel: React.FC<SentinelProps> = ({ onIntruderDetected }) => {
         if (!obj.isThreat && Math.random() > 0.999) {
           setIsAlerting(true);
           onIntruderDetected?.();
-          // Fire and forget insertion to not block RAF loop, reload history on success
           localVault.insert('INTRUSION', { label: obj.label, sensor: facingMode, confidence: 94 }, 7)
             .then(() => loadAlertHistory())
             .catch(err => console.error("Failed to record intrusion:", err));

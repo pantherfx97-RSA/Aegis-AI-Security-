@@ -1,14 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
-import { SecurityState } from './types';
-import { Button } from './components/Button';
-import Dashboard from './views/Dashboard';
-import ThreatScanner from './views/ThreatScanner';
-import PasswordAudit from './views/PasswordAudit';
-import Sentinel from './views/Sentinel';
-import Assistant from './views/Assistant';
-import Settings from './views/Settings';
-import SplashScreen from './components/SplashScreen';
+import { SecurityState } from './types.ts';
+import { Button } from './components/Button.tsx';
+import Dashboard from './views/Dashboard.tsx';
+import ThreatScanner from './views/ThreatScanner.tsx';
+import PasswordAudit from './views/PasswordAudit.tsx';
+import Sentinel from './views/Sentinel.tsx';
+import Assistant from './views/Assistant.tsx';
+import Settings from './views/Settings.tsx';
+import SplashScreen from './components/SplashScreen.tsx';
 
 type Tab = 'dashboard' | 'scanner' | 'passwords' | 'sentinel' | 'assistant' | 'settings';
 

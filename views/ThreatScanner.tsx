@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { securityService } from '../geminiService';
-import { SecurityReport, ThreatLevel } from '../types';
-import { Button } from '../components/Button';
-import { ThreatCard } from '../components/ThreatCard';
-import { localVault } from '../lib/database';
+import { securityService } from '../geminiService.ts';
+import { SecurityReport, ThreatLevel } from '../types.ts';
+import { Button } from '../components/Button.tsx';
+import { ThreatCard } from '../components/ThreatCard.tsx';
+import { localVault } from '../lib/database.ts';
 
 const ThreatScanner: React.FC = () => {
   const [input, setInput] = useState('');

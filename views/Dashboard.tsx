@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { SecurityState } from '../types';
-import { localVault } from '../lib/database';
+import { SecurityState } from '../types.ts';
+import { localVault } from '../lib/database.ts';
 
 interface DashboardProps {
   state: SecurityState;

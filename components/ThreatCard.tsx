@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { SecurityReport, ThreatLevel } from '../types';
+import { SecurityReport, ThreatLevel } from '../types.ts';
 
 interface ThreatCardProps {
   report: SecurityReport;

@@ -1,8 +1,10 @@
 
-const CACHE_NAME = 'aegis-v2.6.0';
+const CACHE_NAME = 'aegis-v2.7.0';
 const ASSETS = [
   './',
   './index.html',
+  './index.tsx',
+  './App.tsx',
   './manifest.json',
   'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
@@ -29,13 +31,15 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Stale-while-revalidate strategy for ESM modules from esm.sh
+  // Stale-while-revalidate strategy for external ESM modules
   if (event.request.url.includes('esm.sh')) {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
         return cache.match(event.request).then((response) => {
           const fetchPromise = fetch(event.request).then((networkResponse) => {
-            cache.put(event.request, networkResponse.clone());
+            if (networkResponse.ok) {
+              cache.put(event.request, networkResponse.clone());
+            }
             return networkResponse;
           });
           return response || fetchPromise;
@@ -45,7 +49,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Default Cache-first for local static assets
+  // Cache-first for local static assets and source files
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       return cachedResponse || fetch(event.request);

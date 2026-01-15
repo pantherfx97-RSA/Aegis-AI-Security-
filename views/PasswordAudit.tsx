@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { securityService } from '../geminiService';
-import { SecurityReport } from '../types';
-import { Button } from '../components/Button';
-import { ThreatCard } from '../components/ThreatCard';
-import { localVault } from '../lib/database';
+import { securityService } from '../geminiService.ts';
+import { SecurityReport } from '../types.ts';
+import { Button } from '../components/Button.tsx';
+import { ThreatCard } from '../components/ThreatCard.tsx';
+import { localVault } from '../lib/database.ts';
 
 const PasswordAudit: React.FC = () => {
   const [meta, setMeta] = useState('');
@@ -31,7 +31,6 @@ const PasswordAudit: React.FC = () => {
     try {
       const result = await securityService.auditPasswordMeta(meta);
       setReport(result);
-      // Save to local vault - retention is effectively infinite (3650 days) until manual purge
       await localVault.insert('PASSWORD_META', result, 3650);
       await loadHistory();
       setMeta('');
@@ -117,22 +116,6 @@ const PasswordAudit: React.FC = () => {
           </div>
         </div>
       )}
-
-      <div className="bg-cyber-gray/20 border border-white/5 rounded-2xl p-6 mt-8">
-        <h3 className="text-[10px] font-bold uppercase mb-4 text-gray-500 tracking-widest">Wally Nthani's Security Protocol</h3>
-        <ul className="space-y-4">
-          {[
-            { icon: 'fa-lock', text: 'Use hardware security keys (YubiKey) for critical vault access.' },
-            { icon: 'fa-user-check', text: 'Prefer Passkeys (WebAuthn) over traditional password strings.' },
-            { icon: 'fa-rotate', text: 'Credential rotation is only necessary upon verified breach alerts.' },
-          ].map((item, i) => (
-            <li key={i} className="flex items-start gap-4 text-xs text-gray-400 leading-relaxed">
-              <i className={`fas ${item.icon} text-neon-green mt-0.5`}></i>
-              <span>{item.text}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
 };

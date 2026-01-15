@@ -1,8 +1,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { securityService } from '../geminiService';
-import { Message } from '../types';
-import { Button } from '../components/Button';
+import { securityService } from '../geminiService.ts';
+import { Message } from '../types.ts';
+import { Button } from '../components/Button.tsx';
 
 const Assistant: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([

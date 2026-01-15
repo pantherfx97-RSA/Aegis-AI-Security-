@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { SecurityReport, ThreatLevel } from "./types";
+import { SecurityReport, ThreatLevel } from "./types.ts";
 
 export class SecurityAIService {
   private getAI() {
