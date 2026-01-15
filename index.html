@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#050505">
+    <meta name="theme-color" content="#020205">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1055/1055644.png">
-    <title>AegisAI - Intelligent Shield</title>
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2092/2092663.png">
+    <title>AEGIS AI SECURITY - Advanced Shield</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -18,9 +18,10 @@
         theme: {
           extend: {
             colors: {
-              'cyber-black': '#050505',
-              'cyber-gray': '#0f0f0f',
+              'cyber-black': '#020205',
+              'cyber-gray': '#0a0a0f',
               'neon-cyan': '#00f3ff',
+              'neon-purple': '#bc13fe',
               'neon-green': '#39ff14',
               'threat-high': '#ff003c',
               'threat-medium': '#ffae00',
@@ -30,8 +31,9 @@
               mono: ['Fira Code', 'monospace'],
             },
             boxShadow: {
-              'neon': '0 0 10px rgba(0, 243, 255, 0.3)',
-              'neon-green': '0 0 10px rgba(57, 255, 20, 0.3)',
+              'neon': '0 0 15px rgba(0, 243, 255, 0.4)',
+              'neon-purple': '0 0 15px rgba(188, 19, 254, 0.4)',
+              'neon-green': '0 0 15px rgba(57, 255, 20, 0.3)',
             }
           }
         }
@@ -39,31 +41,49 @@
     </script>
     <style>
       body {
-        background-color: #000000;
+        background-color: #020205;
         color: #e5e7eb;
         -webkit-tap-highlight-color: transparent;
         padding-top: env(safe-area-inset-top);
         padding-bottom: env(safe-area-inset-bottom);
+        overflow-x: hidden;
       }
       ::-webkit-scrollbar {
-        width: 6px;
+        width: 4px;
       }
       ::-webkit-scrollbar-track {
-        background: #000000;
+        background: #020205;
       }
       ::-webkit-scrollbar-thumb {
-        background: #111111;
+        background: #1a1a2e;
         border-radius: 10px;
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #00f3ff;
       }
       .animate-fade-in {
-        animation: fadeIn 0.5s ease-out forwards;
+        animation: fadeIn 0.4s ease-out forwards;
       }
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
+        from { opacity: 0; transform: translateY(8px); }
         to { opacity: 1; transform: translateY(0); }
+      }
+      .scanline {
+        width: 100%;
+        height: 100px;
+        z-index: 99;
+        background: linear-gradient(0deg, rgba(0, 243, 255, 0) 0%, rgba(0, 243, 255, 0.05) 50%, rgba(0, 243, 255, 0) 100%);
+        opacity: 0.1;
+        position: fixed;
+        bottom: 100%;
+        left: 0;
+        pointer-events: none;
+        animation: scanline 8s linear infinite;
+      }
+      @keyframes scanline {
+        0% { bottom: 100%; }
+        80% { bottom: -100px; }
+        100% { bottom: -100px; }
       }
     </style>
 <script type="importmap">
@@ -77,16 +97,16 @@
 }
 </script>
 </head>
-<body class="overflow-x-hidden antialiased bg-black">
+<body class="antialiased bg-cyber-black">
+    <div class="scanline"></div>
     <div id="root"></div>
-    <!-- Entry point for the React application -->
     <script type="module" src="./index.tsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('Aegis Service Worker active.', reg.scope))
-            .catch(err => console.log('Service Worker failed.', err));
+            .then(reg => console.log('Aegis Core active.', reg.scope))
+            .catch(err => console.log('Core load failed.', err));
         });
       }
     </script>

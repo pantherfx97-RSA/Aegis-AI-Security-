@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'aegis-v2.7.0';
+const CACHE_NAME = 'aegis-ai-security-v2.9.4';
 const ASSETS = [
   './',
   './index.html',

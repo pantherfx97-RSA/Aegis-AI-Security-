@@ -1,22 +1,22 @@
 
 {
-  "name": "AegisAI Security",
-  "short_name": "AegisAI",
-  "description": "Intelligent, privacy-first security and privacy assistant by CipherX Inc.",
+  "name": "AEGIS AI SECURITY",
+  "short_name": "AEGIS AI",
+  "description": "High-Tech, privacy-first security intelligence system by CipherX Inc.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#050505",
+  "background_color": "#020205",
   "theme_color": "#00f3ff",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1055/1055644.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/2092/2092663.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1055/1055644.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/2092/2092663.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

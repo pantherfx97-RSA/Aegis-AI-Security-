@@ -1,5 +1,5 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { SecurityReport, ThreatLevel } from "./types.ts";
 
 export class SecurityAIService {
@@ -8,12 +8,12 @@ export class SecurityAIService {
   }
 
   private readonly AEGIS_IDENTITY = `You are AegisAI, an intelligent, privacy-first security assistant for Wally Nthani, founder of CipherX Inc. 
-  You interact exclusively with metadata from an on-device encrypted database. 
-  NEVER request or store raw passwords or sensitive personal images.
-  Your responses should be formatted for direct interpretation by a security professional or for insertion into a local audit log.`;
+  You interact exclusively with metadata from an on-device encrypted database or real-time camera feeds. 
+  NEVER request or store raw passwords or sensitive personal images outside the temporary analysis buffer.
+  Your responses should be formatted for direct interpretation by a security professional.`;
 
   /**
-   * Deep Security Analysis using gemini-3-pro-preview
+   * Deep Security Analysis
    */
   async analyzeDeeply(prompt: string): Promise<string> {
     const ai = this.getAI();
@@ -22,13 +22,11 @@ export class SecurityAIService {
         model: 'gemini-3-pro-preview',
         contents: prompt,
         config: {
-          systemInstruction: `${this.AEGIS_IDENTITY} 
-          Analyze security requests with deep logical rigor. 
-          Focus on local threat mitigation and CipherX zero-trust protocols.`,
+          systemInstruction: `${this.AEGIS_IDENTITY} Analyze security requests with deep logical rigor.`,
           thinkingConfig: { thinkingBudget: 8000 }
         },
       });
-      return response.text || "Neural link stable. No anomalies detected in current buffer.";
+      return response.text || "Neural link stable.";
     } catch (error) {
       console.error("Deep analysis failed:", error);
       throw error;
@@ -36,7 +34,7 @@ export class SecurityAIService {
   }
 
   /**
-   * Fast Threat Classification using gemini-3-flash-preview
+   * Fast Threat Classification
    */
   async classifyThreat(data: string): Promise<SecurityReport> {
     const ai = this.getAI();
@@ -49,38 +47,97 @@ export class SecurityAIService {
           responseSchema: {
             type: Type.OBJECT,
             properties: {
-              threatLevel: { type: Type.STRING, description: "LOW, MEDIUM, or HIGH" },
-              confidenceScore: { type: Type.NUMBER, description: "0-100" },
+              threatLevel: { type: Type.STRING },
+              confidenceScore: { type: Type.NUMBER },
               recommendedAction: { type: Type.STRING },
               explanation: { type: Type.STRING }
             },
             required: ["threatLevel", "confidenceScore", "recommendedAction", "explanation"]
           },
-          systemInstruction: `${this.AEGIS_IDENTITY} You are a fast-response triage module. Classify threats based on metadata ONLY.`
+          systemInstruction: `${this.AEGIS_IDENTITY} Rapid triage module.`
         },
       });
-
-      const text = response.text || "{}";
-      const parsed = JSON.parse(text);
-      return {
-        threatLevel: (parsed.threatLevel || ThreatLevel.LOW) as ThreatLevel,
-        confidenceScore: parsed.confidenceScore || 0,
-        recommendedAction: parsed.recommendedAction || "Manual investigation required",
-        explanation: parsed.explanation || "No detailed explanation provided."
-      };
+      return JSON.parse(response.text || "{}");
     } catch (error) {
-      console.error("Threat classification failed:", error);
-      return {
-        threatLevel: ThreatLevel.LOW,
-        confidenceScore: 0,
-        recommendedAction: "Local Review",
-        explanation: "Rapid classification engine encountered a neural fault."
-      };
+      return { threatLevel: ThreatLevel.LOW, confidenceScore: 0, recommendedAction: "Check Logs", explanation: "Error" };
     }
   }
 
   /**
-   * Password Intelligence using gemini-3-flash-preview
+   * Vision Analysis
+   */
+  async analyzeVision(base64Image: string): Promise<SecurityReport> {
+    const ai = this.getAI();
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: {
+          parts: [{ inlineData: { mimeType: 'image/jpeg', data: base64Image } }, { text: "Intruder check. Return JSON." }]
+        },
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              threatLevel: { type: Type.STRING },
+              confidenceScore: { type: Type.NUMBER },
+              recommendedAction: { type: Type.STRING },
+              explanation: { type: Type.STRING }
+            },
+            required: ["threatLevel", "confidenceScore", "recommendedAction", "explanation"]
+          }
+        }
+      });
+      return JSON.parse(response.text || "{}");
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Identity Badge Synthesis (Image Generation)
+   */
+  async generateIdentityBadge(): Promise<string | null> {
+    const ai = this.getAI();
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image',
+        contents: {
+          parts: [{ text: "Create a highly detailed, futuristic holographic security clearance ID card for 'Wally Nthani'. It should feature CipherX Inc branding, neon cyan accents, a fingerprint motif, and the title 'FOUNDER & ARCHITECT'. The background should be a dark, cyber-grid texture. 4K resolution." }]
+        },
+        config: {
+          imageConfig: { aspectRatio: "3:4" }
+        }
+      });
+
+      const part = response.candidates?.[0]?.content?.parts.find(p => p.inlineData);
+      return part ? `data:image/png;base64,${part.inlineData.data}` : null;
+    } catch (error) {
+      console.error("Badge synthesis failed:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Real-time Voice Session (Live API)
+   */
+  connectVoice(callbacks: any) {
+    const ai = this.getAI();
+    return ai.live.connect({
+      model: 'gemini-2.5-flash-native-audio-preview-12-2025',
+      callbacks,
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: {
+          voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Zephyr' } }
+        },
+        systemInstruction: `${this.AEGIS_IDENTITY} You are now in COMM mode. Provide brief, spoken security updates. Be professional and vigilant.`
+      }
+    });
+  }
+
+  /**
+   * Password Intelligence
    */
   async auditPasswordMeta(meta: string): Promise<SecurityReport> {
     const ai = this.getAI();
@@ -99,21 +156,35 @@ export class SecurityAIService {
               explanation: { type: Type.STRING }
             },
             required: ["threatLevel", "confidenceScore", "recommendedAction", "explanation"]
-          },
-          systemInstruction: `${this.AEGIS_IDENTITY} Expert password metadata auditor. Analyze entropy and patterns without raw strings.`
+          }
         }
       });
-      
-      const text = response.text || "{}";
-      return JSON.parse(text);
+      return JSON.parse(response.text || "{}");
     } catch (error) {
-      console.error("Password audit failed:", error);
-      return {
-        threatLevel: ThreatLevel.LOW,
-        confidenceScore: 0,
-        recommendedAction: "Local Audit Required",
-        explanation: "Audit pipeline disrupted."
-      };
+      throw error;
+    }
+  }
+
+  /**
+   * Geospatial Risk Assessment (Maps Grounding)
+   */
+  async getLocalRiskAssessment(lat: number, lng: number): Promise<string> {
+    const ai = this.getAI();
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: `As AegisAI, assess the physical security profile of the area around these coordinates: ${lat}, ${lng}. Are there any critical infrastructure points, data centers, or known high-security zones nearby? Provide a concise summary for a founder.`,
+        config: {
+          tools: [{ googleMaps: {} }],
+          toolConfig: {
+            retrievalConfig: { latLng: { latitude: lat, longitude: lng } }
+          }
+        }
+      });
+      return response.text || "Regional scans complete. No immediate geospatial anomalies.";
+    } catch (error) {
+      console.error("Maps grounding failed:", error);
+      return "Unable to resolve local threat surface via geospatial tools.";
     }
   }
 }
