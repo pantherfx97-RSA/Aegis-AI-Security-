@@ -1,10 +1,9 @@
 
-const CACHE_NAME = 'aegis-ai-v3.0.0';
-const ASSETS = [
+const CACHE_NAME = 'aegis-core-v3.2.0';
+const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/index.tsx',
   'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
@@ -12,10 +11,7 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Use Settled to ensure installation completes even if one asset fails
-      return Promise.allSettled(
-        ASSETS.map(url => cache.add(url).catch(err => console.warn(`Failed to cache ${url}:`, err)))
-      );
+      return cache.addAll(STATIC_ASSETS).catch(err => console.warn('PWA Pre-cache partial failure:', err));
     })
   );
   self.skipWaiting();
@@ -33,44 +29,43 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Handle critical external assets and modules
+  // Bypass SW for internal .ts/.tsx files to ensure the latest code always runs
+  // and prevent content-type mismatches during development.
+  if (event.request.url.match(/\.(ts|tsx)$/)) {
+    return;
+  }
+
+  // 1. Handle Navigation Requests (SPA support)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match('/index.html') || caches.match('/'))
+    );
+    return;
+  }
+
+  // 2. Cache-First for external stable CDNs
   if (
-    event.request.url.includes('esm.sh') || 
-    event.request.url.includes('cdnjs.cloudflare.com') || 
     event.request.url.includes('cdn.tailwindcss.com') ||
-    event.request.url.includes('fonts.googleapis.com')
+    event.request.url.includes('cdnjs.cloudflare.com') ||
+    event.request.url.includes('fonts.googleapis.com') ||
+    event.request.url.includes('fonts.gstatic.com')
   ) {
     event.respondWith(
-      caches.open(CACHE_NAME).then((cache) => {
-        return cache.match(event.request).then((response) => {
-          if (response) return response;
-          return fetch(event.request).then((networkResponse) => {
-            if (networkResponse && networkResponse.ok) {
-              cache.put(event.request, networkResponse.clone());
-            }
-            return networkResponse;
-          }).catch(() => null);
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.ok) {
+            const cacheCopy = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, cacheCopy));
+          }
+          return networkResponse;
         });
       })
     );
     return;
   }
 
-  // SPA navigation fallback: Always serve index.html for navigation requests that fail network
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match('/index.html') || caches.match('/');
-      })
-    );
-    return;
-  }
-
-  // Default strategy: Try network first to get the latest TSX/JS modules, fallback to cache
+  // 3. Network-First for everything else
   event.respondWith(
-    fetch(event.request)
-      .catch(() => {
-        return caches.match(event.request);
-      })
+    fetch(event.request).catch(() => caches.match(event.request))
   );
 });

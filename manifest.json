@@ -4,6 +4,7 @@
   "short_name": "AEGIS AI",
   "description": "High-Tech, privacy-first security intelligence system by CipherX Inc.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#020205",
   "theme_color": "#00f3ff",
