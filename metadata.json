@@ -1,0 +1,9 @@
+{
+  "name": "Aegis AI Security",
+  "description": "A proactive, privacy-first security intelligence system that utilizes AI to detect threats, audit password metadata, and monitor for intruders using real-time sensor data.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
